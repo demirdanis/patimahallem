@@ -1,0 +1,249 @@
+
+erDiagram
+    users ||--o{ user_roles :  has
+    users ||--o{ point_subscriptions : subscribes
+    users ||--o{ events :  creates
+    users ||--o{ wallets : owns
+    users ||--o{ transactions : makes
+    users ||--o{ donations : donates
+    users ||--o{ user_badges : earns
+    
+    roles ||--o{ user_roles :  assigned_to
+    
+    points ||--o{ point_subscriptions : has_subscribers
+    points ||--o{ point_photos : has
+    points ||--o{ events : occurs_at
+    points ||--o{ donations : receives
+    
+    events ||--o{ event_types : belongs_to
+    
+    currencies ||--o{ currency_prices : has
+    currencies ||--o{ wallet_balances :  used_in
+    currencies ||--o{ transactions : used_in
+    currencies ||--o{ donations :  used_in
+    currencies ||--o{ badges : required_for
+    
+    badges ||--o{ user_badges : awarded_to
+    badges ||--o{ badge_currency_requirements : requires
+    badges ||--o{ badge_event_requirements : requires
+    
+    wallets ||--o{ wallet_balances : contains
+    
+    users {
+        bigint id PK
+        string email UK
+        string password_hash
+        string full_name
+        string phone
+        boolean is_active
+        timestamp created_at
+        bigint created_by FK
+        timestamp updated_at
+        bigint updated_by FK
+    }
+    
+    roles {
+        int id PK
+        string name UK "admin, pati_bakici, bagisci"
+        string description
+        timestamp created_at
+        bigint created_by FK
+        timestamp updated_at
+        bigint updated_by FK
+    }
+    
+    user_roles {
+        bigint id PK
+        bigint user_id FK
+        int role_id FK
+        timestamp created_at
+        bigint created_by FK
+        timestamp updated_at
+        bigint updated_by FK
+    }
+    
+    points {
+        bigint id PK
+        string name
+        text description
+        decimal latitude
+        decimal longitude
+        text address
+        boolean is_active
+        timestamp created_at
+        bigint created_by FK
+        timestamp updated_at
+        bigint updated_by FK
+    }
+    
+    point_photos {
+        bigint id PK
+        bigint point_id FK
+        string photo_url "S3 URL"
+        int display_order
+        timestamp created_at
+        bigint created_by FK
+        timestamp updated_at
+        bigint updated_by FK
+    }
+    
+    point_subscriptions {
+        bigint id PK
+        bigint user_id FK
+        bigint point_id FK
+        boolean is_active
+        timestamp created_at
+        bigint created_by FK
+        timestamp updated_at
+        bigint updated_by FK
+    }
+    
+    event_types {
+        int id PK
+        string name UK "besleme, sevme, yuva_yapma, tadilat_tamir, asilama, temizlik, sahiplendirme"
+        string description
+        string icon
+        timestamp created_at
+        bigint created_by FK
+        timestamp updated_at
+        bigint updated_by FK
+    }
+    
+    events {
+        bigint id PK
+        bigint point_id FK
+        int event_type_id FK
+        text description
+        timestamp event_date
+        boolean is_recurring
+        int recurrence_interval_hours "null if not recurring"
+        timestamp next_occurrence "null if not recurring"
+        timestamp completed_at
+        string status "planned, completed, cancelled"
+        timestamp created_at
+        bigint created_by FK
+        timestamp updated_at
+        bigint updated_by FK
+    }
+    
+    currencies {
+        int id PK
+        string name UK "mama, ilac, ev, bakim, asi"
+        string code UK "MAMA, ILAC, EV, BAKIM, ASI"
+        string description
+        string icon
+        timestamp created_at
+        bigint created_by FK
+        timestamp updated_at
+        bigint updated_by FK
+    }
+    
+    currency_prices {
+        bigint id PK
+        int currency_id FK
+        decimal price_in_tl
+        timestamp effective_from
+        timestamp effective_to
+        boolean is_current
+        timestamp created_at
+        bigint created_by FK
+        timestamp updated_at
+        bigint updated_by FK
+    }
+    
+    badges {
+        int id PK
+        string name UK "mama_bagiscisi_krali, sevgi_kelebegi"
+        string description
+        string badge_type "donation, activity"
+        string icon_url
+        int level
+        timestamp created_at
+        bigint created_by FK
+        timestamp updated_at
+        bigint updated_by FK
+    }
+    
+    badge_currency_requirements {
+        bigint id PK
+        int badge_id FK
+        int currency_id FK
+        int required_amount "e.g., 300 mama"
+        timestamp created_at
+        bigint created_by FK
+        timestamp updated_at
+        bigint updated_by FK
+    }
+    
+    badge_event_requirements {
+        bigint id PK
+        int badge_id FK
+        int event_type_id FK
+        int required_count "e.g., 20 sevme events"
+        timestamp created_at
+        bigint created_by FK
+        timestamp updated_at
+        bigint updated_by FK
+    }
+    
+    user_badges {
+        bigint id PK
+        bigint user_id FK
+        int badge_id FK
+        timestamp earned_at
+        boolean is_active
+        timestamp created_at
+        bigint created_by FK
+        timestamp updated_at
+        bigint updated_by FK
+    }
+    
+    wallets {
+        bigint id PK
+        bigint user_id FK "UK"
+        timestamp created_at
+        bigint created_by FK
+        timestamp updated_at
+        bigint updated_by FK
+    }
+    
+    wallet_balances {
+        bigint id PK
+        bigint wallet_id FK
+        int currency_id FK
+        decimal balance
+        timestamp created_at
+        bigint created_by FK
+        timestamp updated_at
+        bigint updated_by FK
+    }
+    
+    transactions {
+        bigint id PK
+        bigint user_id FK
+        int currency_id FK
+        decimal amount
+        decimal price_paid_tl
+        string payment_method
+        string transaction_reference
+        string status "pending, completed, failed, refunded"
+        timestamp created_at
+        bigint created_by FK
+        timestamp updated_at
+        bigint updated_by FK
+    }
+    
+    donations {
+        bigint id PK
+        bigint donor_id FK
+        bigint recipient_id FK
+        bigint point_id FK
+        int currency_id FK
+        decimal amount
+        text message
+        string status "completed, cancelled"
+        timestamp created_at
+        bigint created_by FK
+        timestamp updated_at
+        bigint updated_by FK
+    }
