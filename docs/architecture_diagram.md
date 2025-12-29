@@ -4,102 +4,50 @@
 
 ```mermaid
 graph TB
-    subgraph "Client Layer"
+    subgraph Client["Client Layer"]
         Mobile[📱 Mobile App]
         Web[🌐 Web App]
-        Admin[⚙️ Admin Panel]
     end
     
-    subgraph "Edge Layer"
-        Gateway[🚪 API Gateway - YARP<br/>Port:  5000<br/>- JWT Auth<br/>- Rate Limiting<br/>- Routing]
+    subgraph Edge["Edge Layer"]
+        Gateway[🚪 API Gateway<br/>Rate Limiting:  In-Memory]
     end
     
-    subgraph "Application Layer - Microservices"
-        UserService[👤 User Service<br/>Port: 5001<br/>- Auth/JWT<br/>- Users/Roles]
-        PointService[📍 Point Service<br/>Port: 5002<br/>- Points<br/>- Subscriptions<br/>- Photos]
-        EventService[📅 Event Service<br/>Port:  5003<br/>- Events<br/>- Event Types<br/>- Scheduler]
-        WalletService[💰 Wallet Service<br/>Port: 5004<br/>- Wallets<br/>- Transactions<br/>- Donations]
-        BadgeService[🏆 Badge Service<br/>Port: 5005<br/>- Badges<br/>- Achievements<br/>- Rewards]
-        NotificationService[🔔 Notification Service<br/>Port: 5006<br/>- Push/Email/SMS<br/>- Outbox Pattern]
+    subgraph App["Application Layer"]
+        UserService[👤 User Service]
+        PointService[📍 Point Service]
+        EventService[📅 Event Service]
+        WalletService[💰 Wallet Service]
+        BadgeService[🏆 Badge Service]
+        NotificationService[🔔 Notification Service]
     end
     
-    subgraph "Message Broker"
-        RabbitMQ[🐰 RabbitMQ<br/>Port: 5672<br/>- Event Bus<br/>- MassTransit]
-    end
-    
-    subgraph "Data Layer"
-        PostgreSQL[(🐘 PostgreSQL<br/>Port: 5432<br/>- Main Database)]
-        Redis[(⚡ Redis<br/>Port: 6379<br/>- Cache<br/>- Session)]
-        S3[☁️ AWS S3<br/>- Photo Storage]
-    end
-    
-    subgraph "Monitoring & Logging"
-        Seq[📊 Seq<br/>Port: 5341<br/>- Centralized Logs]
-        Prometheus[📈 Prometheus<br/>Port: 9090<br/>- Metrics]
-        Grafana[📉 Grafana<br/>Port: 3000<br/>- Dashboards]
-        Jaeger[🔍 Jaeger<br/>Port: 16686<br/>- Distributed Tracing]
+    subgraph Data["Data Layer"]
+        PostgreSQL[(🐘 PostgreSQL<br/>Caching: Query Results<br/>Locking: SELECT FOR UPDATE)]
+        RabbitMQ[🐰 RabbitMQ]
+        S3[☁️ S3]
     end
     
     Mobile --> Gateway
     Web --> Gateway
-    Admin --> Gateway
-    
     Gateway --> UserService
     Gateway --> PointService
     Gateway --> EventService
-    Gateway --> WalletService
-    Gateway --> BadgeService
     
     UserService --> PostgreSQL
     PointService --> PostgreSQL
     EventService --> PostgreSQL
-    WalletService --> PostgreSQL
-    BadgeService --> PostgreSQL
-    NotificationService --> PostgreSQL
-    
-    UserService --> Redis
-    PointService --> Redis
-    EventService --> Redis
     
     PointService --> S3
     
-    UserService -.->|Publish Events| RabbitMQ
-    PointService -.->|Publish Events| RabbitMQ
-    EventService -.->|Publish Events| RabbitMQ
-    WalletService -.->|Publish Events| RabbitMQ
-    BadgeService -.->|Publish Events| RabbitMQ
+    UserService -.-> RabbitMQ
+    EventService -.-> RabbitMQ
+    RabbitMQ -.-> NotificationService
+    RabbitMQ -.-> BadgeService
     
-    RabbitMQ -.->|Consume Events| NotificationService
-    RabbitMQ -.->|Consume Events| BadgeService
-    RabbitMQ -.->|Consume Events| WalletService
-    
-    UserService --> Seq
-    PointService --> Seq
-    EventService --> Seq
-    WalletService --> Seq
-    BadgeService --> Seq
-    NotificationService --> Seq
-    
-    UserService --> Prometheus
-    PointService --> Prometheus
-    EventService --> Prometheus
-    WalletService --> Prometheus
-    BadgeService --> Prometheus
-    NotificationService --> Prometheus
-    
-    Prometheus --> Grafana
-    
-    UserService --> Jaeger
-    PointService --> Jaeger
-    EventService --> Jaeger
-    WalletService --> Jaeger
-    BadgeService --> Jaeger
-    NotificationService --> Jaeger
-    
-    style Gateway fill:#ff6b6b,stroke:#c92a2a,color:#fff
-    style RabbitMQ fill:#ff922b,stroke:#e67700,color:#fff
-    style PostgreSQL fill:#4dabf7,stroke:#1971c2,color:#fff
-    style Redis fill:#ff6b6b,stroke:#c92a2a,color:#fff
+    style Gateway fill:#dc3545,stroke:#fff,stroke-width:3px,color:#fff
+    style PostgreSQL fill:#0dcaf0,stroke:#fff,stroke-width:3px,color:#000
+    style RabbitMQ fill:#fd7e14,stroke:#fff,stroke-width:3px,color:#000
 ```
 
 ## 2. Event-Driven Flow Example:  User Creates Event
