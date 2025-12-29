@@ -1,0 +1,40 @@
+# Build results
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio
+. vs/
+. vscode/
+
+# Rider
+.idea/
+
+# NuGet
+*. nupkg
+*. snupkg
+packages/
+
+# Test results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+# Environment
+.env
+appsettings.Development.json
+appsettings. *. json
+! appsettings.json
+
+# Docker
+. dockerignore
+
+# Logs
+logs/
+*.log
